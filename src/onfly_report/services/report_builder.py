@@ -39,12 +39,16 @@ class ReportBuilder:
 
     def build(self) -> dict:
         parser = RowParser()
-        reservations = [parser.parse(raw) for raw in self._reservation_repository.read()]
+        reservations = [
+            parser.parse(raw) for raw in self._reservation_repository.read()
+        ]
         rates = self._rate_repository.read()
 
         status_counts = {"CONFIRMED": 0, "CANCELLED": 0, "NO_SHOW": 0}
         for reservation in reservations:
-            status_counts[reservation.status] = status_counts.get(reservation.status, 0) + 1
+            status_counts[reservation.status] = (
+                status_counts.get(reservation.status, 0) + 1
+            )
 
         confirmed = [row for row in reservations if is_billable(row.status)]
 
@@ -88,7 +92,10 @@ class ReportBuilder:
             for month, data in sorted(monthly.items())
         ]
 
-        ranked_hotels = sorted(hotels.items(), key=lambda item: (item[1]["amount"], item[0]))
+        ranked_hotels = sorted(
+            hotels.items(), key=lambda item: (-item[1]["amount"], item[0])
+        )
+
         top_hotels = [
             {
                 "hotel_id": hotel_id,
